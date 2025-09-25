@@ -8,7 +8,7 @@ toc: true
 toc_sticky: true
 classes: wide
 header:
-  image: /assets/images/bootloader-banner.svg
+  overlay_image: /assets/images/bootloader-banner.svg
   overlay_color: "#000"
   overlay_filter: 0.25
   caption: "Banner: ‘first boot, last line of defense’"
