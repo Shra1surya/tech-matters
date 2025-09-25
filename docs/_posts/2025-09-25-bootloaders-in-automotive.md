@@ -99,7 +99,8 @@ graph LR
   R[Reset/ROM] --> A[Stage1A]
   A --> B[Stage1B]
   B --> S[Stage2]
-  S --> P[Payload (U-Boot / OS / hypervisor)]
+  S --> P["Payload 
+  (U-Boot / OS / hypervisor)"]
 </pre>
 
 - SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL【slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html】, with additional examples (e.g., PXE via U‑Boot)【slimbootloader.github.io/how-tos/boot-pxe-uboot.html】.  
@@ -129,8 +130,8 @@ graph TD
   BB --> CHOOSE[bootchooser + state]
   CHOOSE --> A[Slot A]
   CHOOSE --> B[Slot B]
-  A --> K1[Kernel + DTB (+initrd)]
-  B --> K2[Kernel + DTB (+initrd)]
+  A --> K1["Kernel + DTB (+initrd)"]
+  B --> K2["Kernel + DTB (+initrd)"]
   K1 --> OS[OS]
   K2 --> OS
 </pre>
