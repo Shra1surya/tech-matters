@@ -18,7 +18,6 @@ header:
   tagline: "Bootloaders in Automotive"
 ---
 {% include mermaid.html %}
-{% include custom.html %}
 
 
 
@@ -55,20 +54,20 @@ U‑Boot often uses **multiple stages** because the final image can be too large
 **Boot phases (typical)**  
 (Exact details vary per SoC and board; see U‑Boot docs.)
 
-<div class="mermaid">
+<pre class="mermaid">
 graph TD
   ROM[Boot ROM] --> TPL[Optional TPL]
   TPL --> SPL[SPL: DRAM + clocks + storage]
   SPL --> UBOOT[U-Boot proper: drivers + policy]
   UBOOT --> OS[Kernel + DTB + initrd]
-</div>
+</pre>
 
 - **TPL/SPL.** Early loaders; SPL commonly initializes DRAM and storage and then loads U‑Boot proper.  
   U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework <https://docs.u-boot.org/en/stable/usage/spl_boot.html>, <https://docs.u-boot.org/en/latest/develop/spl.html>.
 - **U‑Boot proper.** Provides board init, device‑model drivers, environment, and multiple boot strategies:
   - **Distro boot / `extlinux.conf`** or **UEFI Boot Manager** paths.
   - **Network/TFTP/USB/DFU** for provisioning and recovery.
-  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs,<https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html>, <https://docs.u-boot.org/en/latest/usage/fit/signature.html>.
+  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs, <https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html>, <https://docs.u-boot.org/en/latest/usage/fit/signature.html>.
 - **Vendor examples.** Silicon vendors (e.g., TI) document SPL/DFU and U‑Boot integration in their Processor SDKs <https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html>.
 
 **Typical U‑Boot boot flow (Linux target)**
@@ -99,14 +98,14 @@ SBL separates **silicon bring‑up** from **policy**, which is handy for complex
 
 **High‑level SBL flow**
 
-<div class="mermaid">
+<pre class="mermaid">
 graph LR
   R[Reset/ROM] --> A[Stage1A]
   A --> B[Stage1B]
   B --> S[Stage2]
   S --> P["Payload 
   (U-Boot / OS / hypervisor)"]
-</div>
+</pre>
 
 - SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL <https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html>, with additional examples <https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html>.  
 - U‑Boot’s docs also describe the SBL payload route for Intel boards <https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html>.
@@ -129,7 +128,7 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 
 **Typical Barebox boot flow (Linux target)**
 
-<div class="mermaid">
+<pre class="mermaid">
 graph TD
   ROM[Boot ROM] --> BB[Barebox]
   BB --> CHOOSE[bootchooser + state]
@@ -139,7 +138,7 @@ graph TD
   B --> K2["Kernel + DTB (+initrd)"]
   K1 --> OS[OS]
   K2 --> OS
-</div>
+</pre>
 
 ```
 [1] Boot ROM loads Barebox

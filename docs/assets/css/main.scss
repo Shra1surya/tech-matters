@@ -6,11 +6,11 @@
 @import "minimal-mistakes";
 
 /* Bottom-align overlay text; use flex-start for top */
-.page__hero--overlay .wrapper {
-  display: flex;
-  min-height: 45vh;        /* give the hero some height */
-  align-items: flex-end;   /* flex-start = top, center = middle */
-  padding-bottom: 1.5rem;  /* breathing room when bottom-aligned */
-}
+//.page__hero--overlay .wrapper {
+//  display: flex;
+//  min-height: 45vh;        /* give the hero some height */
+//  align-items: flex-end;   /* flex-start = top, center = middle */
+//  padding-bottom: 1.5rem;  /* breathing room when bottom-aligned */
+//}
 /* Optional: adjust the image focal point */
-.page__hero--overlay { background-position: center 30%; }
+//.page__hero--overlay { background-position: center 30%; }
