@@ -18,6 +18,7 @@ header:
   tagline: "Bootloaders in Automotive"
 ---
 {% include mermaid.html %}
+{% include custom.html %}
 
 
 
@@ -63,12 +64,12 @@ graph TD
 </div>
 
 - **TPL/SPL.** Early loaders; SPL commonly initializes DRAM and storage and then loads U‑Boot proper.  
-  U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework [https://docs.u-boot.org/en/stable/usage/spl_boot.html], [https://docs.u-boot.org/en/latest/develop/spl.html].
+  U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework <https://docs.u-boot.org/en/stable/usage/spl_boot.html>, <https://docs.u-boot.org/en/latest/develop/spl.html>.
 - **U‑Boot proper.** Provides board init, device‑model drivers, environment, and multiple boot strategies:
   - **Distro boot / `extlinux.conf`** or **UEFI Boot Manager** paths.
   - **Network/TFTP/USB/DFU** for provisioning and recovery.
-  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs [https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html], [https://docs.u-boot.org/en/latest/usage/fit/signature.html].
-- **Vendor examples.** Silicon vendors (e.g., TI) document SPL/DFU and U‑Boot integration in their Processor SDKs [https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html].
+  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs,<https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html>, <https://docs.u-boot.org/en/latest/usage/fit/signature.html>.
+- **Vendor examples.** Silicon vendors (e.g., TI) document SPL/DFU and U‑Boot integration in their Processor SDKs <https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html>.
 
 **Typical U‑Boot boot flow (Linux target)**
 
@@ -107,8 +108,8 @@ graph LR
   (U-Boot / OS / hypervisor)"]
 </div>
 
-- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL [Boot with u-boot] (https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html), with additional examples [PXE via U‑Boot] (https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html).  
-- U‑Boot’s docs also describe the SBL payload route for Intel boards [Intel SBL] (https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html).
+- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL <https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html>, with additional examples <https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html>.  
+- U‑Boot’s docs also describe the SBL payload route for Intel boards <https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html>.
 
 **Why engineering teams like SBL**
 - Clean multi‑stage init and a predictable **payload hand‑off**.
@@ -123,8 +124,8 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 
 **Key capabilities**
 - **Boot entries** (in the bootloader) and **Bootloader Spec** entries (on disk).  
-- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically [Barebox State] (https://barebox.org/doc/latest/user/state.html).
-- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters [Chooser] (https://barebox.org/doc/latest/user/bootchooser.html).
+- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically <https://barebox.org/doc/latest/user/state.html>.
+- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters <https://barebox.org/doc/latest/user/bootchooser.html>.
 
 **Typical Barebox boot flow (Linux target)**
 
