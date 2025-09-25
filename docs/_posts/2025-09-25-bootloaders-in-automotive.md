@@ -5,13 +5,16 @@ date: 2025-09-25
 tags: [automotive, firmware, bootloader, SDV, embedded]
 read_time: true
 toc: true
-toc_sticky: true
+toc_sticky: false
 classes: wide
+excerpt: "first boot, last line of defense"  
 header:
   overlay_image: /assets/images/bootloader-banner.svg
   overlay_color: "#000"
   overlay_filter: 0.25
-  caption: "Banner: ‘first boot, last line of defense’"
+  caption: "Illustration by me"
+  show_overlay_excerpt: true
+  tagline: "Bootloaders in Automotive"
 ---
 {% include mermaid.html %}
 
@@ -50,13 +53,13 @@ U‑Boot often uses **multiple stages** because the final image can be too large
 **Boot phases (typical)**  
 (Exact details vary per SoC and board; see U‑Boot docs.)
 
-<pre class="mermaid">
+<div class="mermaid">
 graph TD
   ROM[Boot ROM] --> TPL[Optional TPL]
   TPL --> SPL[SPL: DRAM + clocks + storage]
   SPL --> UBOOT[U-Boot proper: drivers + policy]
   UBOOT --> OS[Kernel + DTB + initrd]
-</pre>
+</div>
 
 - **TPL/SPL.** Early loaders; SPL commonly initializes DRAM and storage and then loads U‑Boot proper.  
   U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework [https://docs.u-boot.org/en/stable/usage/spl_boot.html], [https://docs.u-boot.org/en/latest/develop/spl.html].
@@ -94,17 +97,17 @@ SBL separates **silicon bring‑up** from **policy**, which is handy for complex
 
 **High‑level SBL flow**
 
-<pre class="mermaid">
+<div class="mermaid">
 graph LR
   R[Reset/ROM] --> A[Stage1A]
   A --> B[Stage1B]
   B --> S[Stage2]
   S --> P["Payload 
   (U-Boot / OS / hypervisor)"]
-</pre>
+</div>
 
-- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL [https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html], with additional examples (e.g., PXE via U‑Boot) https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html].  
-- U‑Boot’s docs also describe the SBL payload route for Intel boards [https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html].
+- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL [Boot with u-boot] (https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html), with additional examples [PXE via U‑Boot] (https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html).  
+- U‑Boot’s docs also describe the SBL payload route for Intel boards [Intel SBL] (https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html).
 
 **Why engineering teams like SBL**
 - Clean multi‑stage init and a predictable **payload hand‑off**.
@@ -119,12 +122,12 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 
 **Key capabilities**
 - **Boot entries** (in the bootloader) and **Bootloader Spec** entries (on disk).  
-- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically [https://barebox.org/doc/latest/user/state.html].
-- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters [https://barebox.org/doc/latest/user/bootchooser.html].
+- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically [Barebox State] (https://barebox.org/doc/latest/user/state.html).
+- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters [Chooser] (https://barebox.org/doc/latest/user/bootchooser.html).
 
 **Typical Barebox boot flow (Linux target)**
 
-<pre class="mermaid">
+<div class="mermaid">
 graph TD
   ROM[Boot ROM] --> BB[Barebox]
   BB --> CHOOSE[bootchooser + state]
@@ -134,7 +137,7 @@ graph TD
   B --> K2["Kernel + DTB (+initrd)"]
   K1 --> OS[OS]
   K2 --> OS
-</pre>
+</div>
 
 ```
 [1] Boot ROM loads Barebox
@@ -246,18 +249,18 @@ UNECE **R156** and **ISO 24089** formalize expectations around software updates;
 
 ## References (primary docs & standards)
 
-- U‑Boot Verified Boot (FIT): https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html  
-- U‑Boot FIT signatures: https://docs.u-boot.org/en/latest/usage/fit/signature.html  
-- U‑Boot SPL/xPL overview: https://docs.u-boot.org/en/latest/develop/spl.html  
-- Slim Bootloader: Boot Linux with U‑Boot payload: https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html  
-- Barebox state framework: https://www.barebox.org/doc/latest/user/state.html  
-- Barebox bootchooser: https://www.barebox.org/doc/latest/user/bootchooser.html  
-- Android A/B (seamless) updates: https://source.android.com/docs/core/ota/ab  
-- Android Virtual A/B: https://source.android.com/docs/core/ota/virtual_ab  
-- Uptane overview: https://uptane.org/  
-- NIST SP 800‑193 (Platform Firmware Resiliency): https://csrc.nist.gov/publications/detail/sp/800-193/final  
-- UNECE R156 (Software Update Regulation): https://unece.org/transport/documents/2021/03/standards/un-regulation-no-156-uniform-provisions-approval-vehicles  
-- ISO 24089 (Road Vehicles — Software Update Engineering): https://www.iso.org/standard/80625.html  
-- TI AM62x boot/falcon references (example): https://software-dl.ti.com/processor-sdk-linux/esd/docs/latest/linux/Foundational_Components_U-Boot.html  
-- NXP i.MX U‑Boot boot time tips (example landing): https://www.nxp.com/docs/en/application-note/AN5385.pdf
+- U‑Boot Verified Boot (FIT): <https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html>
+- U‑Boot FIT signatures: <https://docs.u-boot.org/en/latest/usage/fit/signature.html>
+- U‑Boot SPL/xPL overview: <https://docs.u-boot.org/en/latest/develop/spl.html>
+- Slim Bootloader: Boot Linux with U‑Boot payload: <https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html>  
+- Barebox state framework: <https://www.barebox.org/doc/latest/user/state.html>
+- Barebox bootchooser: <https://www.barebox.org/doc/latest/user/bootchooser.html>
+- Android A/B (seamless) updates: <https://source.android.com/docs/core/ota/ab>
+- Android Virtual A/B: <https://source.android.com/docs/core/ota/virtual_ab>
+- Uptane overview: <https://uptane.org/ >
+- NIST SP 800‑193 (Platform Firmware Resiliency): <https://csrc.nist.gov/publications/detail/sp/800-193/final>
+- UNECE R156 (Software Update Regulation): <https://unece.org/transport/documents/2021/03/standards/un-regulation-no-156-uniform-provisions-approval-vehicles>
+- ISO 24089 (Road Vehicles — Software Update Engineering): <https://www.iso.org/standard/80625.html>
+- TI AM62x boot/falcon references (example): <https://software-dl.ti.com/processor-sdk-linux/esd/docs/latest/linux/Foundational_Components_U-Boot.html>
+- NXP i.MX U‑Boot boot time tips (example landing): <https://www.nxp.com/docs/en/application-note/AN5385.pdf>
 

@@ -1,0 +1,11 @@
+{% raw %}{% if page.mermaid %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      suppressErrorRendering: true  /* avoid ugly "Syntax error" banners */
+    });
+  });
+</script>
+{% endif %}{% endraw %}
