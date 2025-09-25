@@ -35,9 +35,9 @@ When people talk about software‑defined vehicles (SDV), the conversation jumps
 
 Three widely used/open stacks that map well to automotive needs:
 
-- **U‑Boot** — mature, feature‑rich, massive HW support; common in embedded Linux pipelines.  
-- **Slim Bootloader (SBL)** — modular, multi‑stage silicon bring‑up; clean hand‑off to payloads (e.g., U‑Boot, kernel or hypervisor).  
-- **Barebox** — a modern, Linux‑leaning alternative emphasizing maintainability, state handling, and robust boot selection.
+- **U‑Boot**: mature, feature‑rich, massive HW support; common in embedded Linux pipelines.  
+- **Slim Bootloader (SBL)**: modular, multi‑stage silicon bring‑up; clean hand‑off to payloads (e.g., U‑Boot, kernel or hypervisor).  
+- **Barebox**: a modern, Linux‑leaning alternative emphasizing maintainability, state handling, and robust boot selection.
 
 > In practice, engineering teams often **compose**: **SBL for silicon init → U‑Boot (payload) → OS**; for certain ECUs, **Barebox** can be a leaner path with powerful A/B and recovery features.
 
@@ -59,12 +59,12 @@ graph TD
 </pre>
 
 - **TPL/SPL.** Early loaders; SPL commonly initializes DRAM and storage and then loads U‑Boot proper.  
-  U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework【docs.u-boot.org/en/stable/usage/spl_boot.html】,【docs.u-boot.org/en/latest/develop/spl.html】.
+  U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework [https://docs.u-boot.org/en/stable/usage/spl_boot.html], [https://docs.u-boot.org/en/latest/develop/spl.html].
 - **U‑Boot proper.** Provides board init, device‑model drivers, environment, and multiple boot strategies:
   - **Distro boot / `extlinux.conf`** or **UEFI Boot Manager** paths.
   - **Network/TFTP/USB/DFU** for provisioning and recovery.
-  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs【docs.u-boot.org/en/latest/usage/fit/verified-boot.html】,【docs.u-boot.org/en/latest/usage/fit/signature.html】.
-- **Vendor examples.** Silicon vendors (e.g., TI) document SPL/DFU and U‑Boot integration in their Processor SDKs【software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html】.
+  - **Verified Boot** with **FIT images** (signed), often extending trust into the OS (e.g., dm‑verity). See U‑Boot’s verified boot & FIT docs [https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html], [https://docs.u-boot.org/en/latest/usage/fit/signature.html].
+- **Vendor examples.** Silicon vendors (e.g., TI) document SPL/DFU and U‑Boot integration in their Processor SDKs [https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html].
 
 **Typical U‑Boot boot flow (Linux target)**
 
@@ -103,8 +103,8 @@ graph LR
   (U-Boot / OS / hypervisor)"]
 </pre>
 
-- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL【slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html】, with additional examples (e.g., PXE via U‑Boot)【slimbootloader.github.io/how-tos/boot-pxe-uboot.html】.  
-- U‑Boot’s docs also describe the SBL payload route for Intel boards【docs.u-boot.org/en/latest/board/intel/slimbootloader.html】.
+- SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL [https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html], with additional examples (e.g., PXE via U‑Boot) https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html].  
+- U‑Boot’s docs also describe the SBL payload route for Intel boards [https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html].
 
 **Why engineering teams like SBL**
 - Clean multi‑stage init and a predictable **payload hand‑off**.
@@ -119,8 +119,8 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 
 **Key capabilities**
 - **Boot entries** (in the bootloader) and **Bootloader Spec** entries (on disk).  
-- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically【barebox.org/doc/latest/user/state.html】.  
-- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters【barebox.org/doc/latest/user/bootchooser.html】.
+- **State framework**: persistent variables in NVM, shared with Linux userspace; used by **bootchooser** to select A/B slots, count failures, and recover automatically [https://barebox.org/doc/latest/user/state.html].
+- **Bootchooser**: priority‑based target selection with automatic fallback and failure counters [https://barebox.org/doc/latest/user/bootchooser.html].
 
 **Typical Barebox boot flow (Linux target)**
 
@@ -171,24 +171,93 @@ The biggest wins came from **separating silicon bring‑up from policy** and fro
 
 ---
 
+# How to make it better (practical patterns that pay off)
+
+**1) Enforce a real chain-of-trust (and keep it auditable).**  
+Use **verified boot** at the loader boundary and carry integrity into the OS. With U‑Boot, ship kernel/DTB/initrd as a **signed FIT** and verify in SPL/U‑Boot using an immutable public key; extend to dm‑verity if needed. Keep the policy small and reviewable.
+
+**2) Design OTA with “can’t brick” as a requirement (A/B + health gates).**  
+Adopt **A/B (seamless) updates** so one slot runs while the other updates; promote to *good* only after post‑boot health checks. Android’s reference design (including **Virtual A/B** for space savings) is a useful mental model and maps well to embedded stacks.
+
+**3) Use a battle‑tested OTA security framework.**  
+Embed **Uptane** (multi-role metadata; compromise containment) so your bootloader verification is part of an end‑to‑end secure update story.
+
+**4) Make fallback logic a first‑class feature, not an afterthought.**  
+If you’re on **Barebox**, enable **bootchooser** backed by the **state** framework (persistent counters, last‑good flags) and tie it to your updater; mirror the idea in U‑Boot with a minimal state block. This dramatically cuts “tow-truck events.”
+
+**5) Separate silicon bring‑up from policy to avoid duplicate init.**  
+Use **Slim Bootloader (SBL)** for deterministic early hardware init and verification, then **hand off to U‑Boot as payload** for flexible policy/IO paths (PXE/USB/DFU in service builds). Cleaner hand‑off; fewer re‑inits.
+
+**6) Hit aggressive boot budgets with measured optimizations (not folklore).**  
+Instrument first, then trim. Consider U‑Boot **Falcon Mode** (SPL boots the kernel directly) where appropriate; many vendors document it (e.g., TI AM62x, NXP i.MX).
+
+**7) Align with platform-resiliency principles, not just “works on my bench.”**  
+Map your design to **NIST SP 800‑193** (protect, detect, recover) and log recovery attempts; it gives you a vocabulary for audits and a checklist for resilient behavior when things go sideways.
+
+**8) Connect bootloader state to your updater (RAUC/Mender/etc.).**  
+With **RAUC**, integrate **Barebox state + bootchooser** so OS‑level updates set the right flags and the loader’s fallback logic stays in sync. Same idea applies to other OTA tools.
+
+**9) Treat security like a moving target (and test it).**  
+Track advisories and negative tests. Even verified‑boot flows can be mis‑used if policy/scope is wrong. Make room for fuzzing and pentests around FIT/metadata handling.
+
+**10) Know your regulatory backdrop.**  
+UNECE **R156** and **ISO 24089** formalize expectations around software updates; building A/B, health‑gated promotion, and auditable rollback directly into the boot chain helps satisfy both the spirit and the letter.
+
+---
+
+## Implementation map by stack
+
+> Quick “what to do where” guide you can adapt to your program.
+
+| Improvement | U‑Boot | SBL --> U‑Boot (payload) | Barebox |
+|---|---|---|---|
+| **Verified boot (chain‑of‑trust)** | Use **signed FIT**; verify in SPL/U‑Boot; keep policy minimal and auditable. | Enforce verification in **Stage2**, then hand off only verified payload. | Use Barebox security guidance; verify kernel/loader artifacts as documented. |
+| **A/B + health‑gated promotion** | Mirror Android **A/B** logic (slots + health gate) via env/state; U‑Boot has Android A/B support to reference. | Choose slot/payload in Stage2; pass slot info to U‑Boot; promote only after userland health checks. | Turn on **bootchooser** + **state**; store counters/flags atomically; integrate with OTA tool (e.g., RAUC). |
+| **OTA security framework** | Integrate **Uptane** roles/metadata; align signing roots across build + boot. | Same, SBL verifies payloads before hand‑off; U‑Boot enforces runtime policy. | Pair **bootchooser/state** with Uptane‑driven OTA so promotion is transactional. |
+| **Separate bring‑up from policy** | Keep SPL tiny; move policy to U‑Boot proper; or accept payload hand‑off from SBL. | **Primary benefit here**: SBL handles silicon init; U‑Boot handles policy and rich IO. | N/A (Barebox is single stack), but keep board init lean and policy explicit in boot entries. |
+| **Boot‑time optimization** | Consider **Falcon Mode** (SPL → kernel) where feasible; measure DRAM init & device probes. | Use Stage1A/B for only what’s needed; minimize re‑init before payload. | Keep boot entries/probing minimal; rely on OS for late init; measure with GPIO timestamps. |
+| **Fallback & recovery** | Maintain a tiny state block (attempt counters, last‑good) and rollback automatically on failed health check. | Stage2 chooses previous‑good payload on failures; expose reason to payload/OS. | **bootchooser** with **state** is the native way—atomic, redundant, and scriptable. |
+| **Observability & logs** | Emit machine‑parsable boot events (slot, signature path, rollback cause) to a small NVM ring; ship to first userland agent. | Same, emit minimal events in Stage2 and on hand‑off so userland can correlate failures. | Use state variables + simple logs for promotion/failure telemetry; RAUC can consume these. |
+| **Standards alignment** | Map protect/detect/recover to **SP 800‑193**; document your A/B and key flow. | Same; SBL is a natural place to enforce “protect + detect” before payload. | Document bootchooser/state behavior against **R156/ISO 24089** expectations for updates & rollback. |
+
+---
+
+## Checklist
+
+- [ ] Signed FIT images verified in SPL/U‑Boot (or verified kernel path in Barebox).  
+- [ ] A/B slots with **health‑gated promotion** (not time‑based).  
+- [ ] Uptane‑aligned update pipeline (roles/metadata + signing roots).  
+- [ ] Early bring‑up separated from policy (SBL→U‑Boot hand‑off where helpful).  
+- [ ] Measured boot‑time optimizations; consider **Falcon Mode** where it fits.  
+- [ ] Barebox **bootchooser + state** (or equivalent) wired to your OTA tool.  
+- [ ] Minimal boot telemetry (slot picked, verification path, rollback reason).  
+- [ ] Documented mapping to **NIST SP 800‑193 / UNECE R156 / ISO 24089**.
+
+---
+
 ## Open questions for the community
 
 - How do you balance **boot‑time budgets** vs **verification depth**?  
-- Have you paired **SBL → U‑Boot** or used **Barebox** in production ECUs?  
+- Have you paired **SBL --> U‑Boot** or used **Barebox** in production ECUs?  
 - Which parts of your boot path are hardest to validate; multi‑core ordering, storage integrity, or OTA edge cases?
 - Ofcourse, RISC-V, AI and Rust are in the back of my mind - suggest if you are interested in these topics.
 
 ---
 
-## References & further reading
+## References (primary docs & standards)
 
-- **U‑Boot: Booting from TPL/SPL** — <https://docs.u-boot.org/en/stable/usage/spl_boot.html>  
-- **U‑Boot: Generic xPL framework (SPL/TPL/VPL)** — <https://docs.u-boot.org/en/latest/develop/spl.html>  
-- **U‑Boot Verified Boot** — <https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html>  
-- **U‑Boot FIT Signatures** — <https://docs.u-boot.org/en/latest/usage/fit/signature.html>  
-- **TI Processor SDK — U‑Boot overview (SPL, DFU, etc.)** — <https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_U-Boot.html>  
-- **Slim Bootloader — Boot Linux with U‑Boot payload** — <https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html>  
-- **Slim Bootloader — PXE via U‑Boot payload** — <https://slimbootloader.github.io/how-tos/boot-pxe-uboot.html>  
-- **U‑Boot on SBL (Intel boards)** — <https://docs.u-boot.org/en/latest/board/intel/slimbootloader.html>  
-- **Barebox: State framework** — <https://www.barebox.org/doc/latest/user/state.html>  
-- **Barebox: Bootchooser** — <https://barebox.org/doc/latest/user/bootchooser.html> (older mirror: <https://www.barebox.org/doc/2018.11.0/user/bootchooser.html>)  
+- U‑Boot Verified Boot (FIT): https://docs.u-boot.org/en/latest/usage/fit/verified-boot.html  
+- U‑Boot FIT signatures: https://docs.u-boot.org/en/latest/usage/fit/signature.html  
+- U‑Boot SPL/xPL overview: https://docs.u-boot.org/en/latest/develop/spl.html  
+- Slim Bootloader: Boot Linux with U‑Boot payload: https://slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html  
+- Barebox state framework: https://www.barebox.org/doc/latest/user/state.html  
+- Barebox bootchooser: https://www.barebox.org/doc/latest/user/bootchooser.html  
+- Android A/B (seamless) updates: https://source.android.com/docs/core/ota/ab  
+- Android Virtual A/B: https://source.android.com/docs/core/ota/virtual_ab  
+- Uptane overview: https://uptane.org/  
+- NIST SP 800‑193 (Platform Firmware Resiliency): https://csrc.nist.gov/publications/detail/sp/800-193/final  
+- UNECE R156 (Software Update Regulation): https://unece.org/transport/documents/2021/03/standards/un-regulation-no-156-uniform-provisions-approval-vehicles  
+- ISO 24089 (Road Vehicles — Software Update Engineering): https://www.iso.org/standard/80625.html  
+- TI AM62x boot/falcon references (example): https://software-dl.ti.com/processor-sdk-linux/esd/docs/latest/linux/Foundational_Components_U-Boot.html  
+- NXP i.MX U‑Boot boot time tips (example landing): https://www.nxp.com/docs/en/application-note/AN5385.pdf
+
