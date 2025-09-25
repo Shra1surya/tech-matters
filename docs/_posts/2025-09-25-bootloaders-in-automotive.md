@@ -1,13 +1,14 @@
 ---
 layout: single
-title: "Bootloaders in Automotive: Why They Matter (and How to Make Them Better)"
+title: "Bootloaders in Automotive: Why They Matter More than You Think"
 date: 2025-09-25
 tags: [automotive, firmware, bootloader, SDV, embedded]
 read_time: true
 toc: true
 toc_sticky: false
 classes: wide
-excerpt: "first boot, last line of defense"  
+excerpt: "first boot, last line of defense"
+mermaid: true
 header:
   overlay_image: /assets/images/bootloader-banner.svg
   overlay_color: "#000"
