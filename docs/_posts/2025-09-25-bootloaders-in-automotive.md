@@ -11,7 +11,7 @@ header:
   image: /assets/images/bootloader-banner.svg
   overlay_color: "#000"
   overlay_filter: 0.25
-  caption: "Cartoon banner: ‘first boot, last line of defense’"
+  caption: "Banner: ‘first boot, last line of defense’"
 ---
 {% include mermaid.html %}
 
@@ -51,7 +51,7 @@ U‑Boot often uses **multiple stages** because the final image can be too large
 (Exact details vary per SoC and board; see U‑Boot docs.)
 
 <pre class="mermaid">
-flowchart TD
+graph TD
   ROM[Boot ROM] --> TPL[Optional TPL]
   TPL --> SPL[SPL: DRAM + clocks + storage]
   SPL --> UBOOT[U-Boot proper: drivers + policy]
@@ -95,7 +95,7 @@ SBL separates **silicon bring‑up** from **policy**, which is handy for complex
 **High‑level SBL flow**
 
 <pre class="mermaid">
-flowchart LR
+graph LR
   R[Reset/ROM] --> A[Stage1A]
   A --> B[Stage1B]
   B --> S[Stage2]
@@ -124,7 +124,7 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 **Typical Barebox boot flow (Linux target)**
 
 <pre class="mermaid">
-flowchart TD
+graph TD
   ROM[Boot ROM] --> BB[Barebox]
   BB --> CHOOSE[bootchooser + state]
   CHOOSE --> A[Slot A]
