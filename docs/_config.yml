@@ -1,0 +1,5 @@
+title: "Shravan Suryanarayana — Embedded & SDV Notes"
+description: "Bootloaders, firmware, embedded, AI, and SDV."
+theme: minima
+# If this is a project site (not username.github.io), set baseurl to /REPO_NAME:
+baseurl: "/tech-matters"
