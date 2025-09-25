@@ -1,9 +1,21 @@
 ---
-layout: post
+layout: single
 title: "Bootloaders in Automotive: Why They Matter (and How to Make Them Better)"
 date: 2025-09-25
 tags: [automotive, firmware, bootloader, SDV, embedded]
+read_time: true
+toc: true
+toc_sticky: true
+classes: wide
+header:
+  image: /assets/images/bootloader-banner.svg
+  overlay_color: "#000"
+  overlay_filter: 0.25
+  caption: "Cartoon banner: ‘first boot, last line of defense’"
 ---
+{% include mermaid.html %}
+
+
 
 When people talk about software‑defined vehicles (SDV), the conversation jumps to AI stacks, OTA, and sensors. The **bootloader** sits below all of that as the first actor after reset; establishing trust, sequencing heterogeneous hardware, and deciding whether a system comes up healthy, rolls back, or remains safe. If the bootloader fails or behaves sub‑optimally, everything above it rests on shaky ground.
 
@@ -38,14 +50,13 @@ U‑Boot often uses **multiple stages** because the final image can be too large
 **Boot phases (typical)**  
 (Exact details vary per SoC and board; see U‑Boot docs.)
 
-```
-Boot ROM (SoC)
-  └─> TPL (optional, very tiny)  ─┐
-                                  ├─> SPL (DRAM, clocks/PMIC, basic storage)
-                                  └─> VPL (optional verification/selection; WIP)
-        └─> U‑Boot proper (drivers, env, boot policy)
-              └─> OS payload (Linux kernel + DTB + initrd, or other)
-```
+<pre class="mermaid">
+flowchart TD
+  ROM[Boot ROM] --> TPL[Optional TPL]
+  TPL --> SPL[SPL: DRAM + clocks + storage]
+  SPL --> UBOOT[U-Boot proper: drivers + policy]
+  UBOOT --> OS[Kernel + DTB + initrd]
+</pre>
 
 - **TPL/SPL.** Early loaders; SPL commonly initializes DRAM and storage and then loads U‑Boot proper.  
   U‑Boot explains these phases here: *Booting from TPL/SPL* and the generic xPL framework【docs.u-boot.org/en/stable/usage/spl_boot.html】,【docs.u-boot.org/en/latest/develop/spl.html】.
@@ -83,12 +94,13 @@ SBL separates **silicon bring‑up** from **policy**, which is handy for complex
 
 **High‑level SBL flow**
 
-```
-Reset/ROM
-  └─> Stage1A / Stage1B (very early silicon init)
-       └─> Stage2 (drivers/storage verified, payload selection)
-            └─> Payload (U‑Boot / direct OS / custom loader)
-```
+<pre class="mermaid">
+flowchart LR
+  R[Reset/ROM] --> A[Stage1A]
+  A --> B[Stage1B]
+  B --> S[Stage2]
+  S --> P[Payload (U-Boot / OS / hypervisor)]
+</pre>
 
 - SBL’s official guide for **booting Linux via U‑Boot payload** shows the steps to build and package U‑Boot for SBL【slimbootloader.github.io/how-tos/boot-with-u-boot-payload.html】, with additional examples (e.g., PXE via U‑Boot)【slimbootloader.github.io/how-tos/boot-pxe-uboot.html】.  
 - U‑Boot’s docs also describe the SBL payload route for Intel boards【docs.u-boot.org/en/latest/board/intel/slimbootloader.html】.
@@ -110,6 +122,18 @@ Barebox emphasizes a modern codebase and pragmatic features for production devic
 - **Bootchooser**: priority‑based target selection with automatic fallback and failure counters【barebox.org/doc/latest/user/bootchooser.html】.
 
 **Typical Barebox boot flow (Linux target)**
+
+<pre class="mermaid">
+flowchart TD
+  ROM[Boot ROM] --> BB[Barebox]
+  BB --> CHOOSE[bootchooser + state]
+  CHOOSE --> A[Slot A]
+  CHOOSE --> B[Slot B]
+  A --> K1[Kernel + DTB (+initrd)]
+  B --> K2[Kernel + DTB (+initrd)]
+  K1 --> OS[OS]
+  K2 --> OS
+</pre>
 
 ```
 [1] Boot ROM loads Barebox
