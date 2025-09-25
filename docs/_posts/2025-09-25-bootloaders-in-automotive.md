@@ -18,7 +18,7 @@ header:
   tagline: "Bootloaders in Automotive"
 ---
 {% include mermaid.html %}
-{% include custom.html %}
+{% include heads/custom.html %}
 
 
 
