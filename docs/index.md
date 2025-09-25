@@ -3,4 +3,4 @@ layout: home
 title: Home
 ---
 
-Welcome! Long-form deep dives on **embedded/automotive** topics.
+Welcome! Lets dive deep into **embedded/automotive** topics.
