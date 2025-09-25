@@ -7,15 +7,12 @@ read_time: true
 toc: true
 toc_sticky: false
 classes: wide
-excerpt: "first boot, last line of defense"
 mermaid: true
 header:
   overlay_image: /assets/images/bootloader-banner.svg
   overlay_color: "#000"
   overlay_filter: 0.25
-  caption: "Illustration by me"
-  show_overlay_excerpt: true
-  tagline: "Bootloaders in Automotive"
+  caption: "first boot, last line of defense - Illustration by me"
 ---
 {% include mermaid.html %}
 
